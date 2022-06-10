@@ -1,6 +1,6 @@
-name: "Simplecov Report"
-description: "Simplecov Report"
-author: aki77
+name: "SimpleCov Report"
+description: "SimpleCov Report"
+author: fukumone|pinnacles
 branding:
   icon: check-square
   color: green
@@ -11,11 +11,21 @@ inputs:
     required: false
   resultPath:
     description: "json path"
-    default: "coverage/.last_run.json"
+    default: "coverage/coverage.json"
     required: false
   token:
     description: "Github token"
     required: true
+  event_name:
+    description: "pull_request or push"
+    default: "pull_request"
+    required: true
+  pr_number:
+    description: "Set pr_number if event_name is selected."
+    required: false
+  head_branch:
+    description: "Compare head branch coverage results"
+    required: true
 runs:
-  using: "node12"
+  using: 'node16'
   main: "dist/index.js"

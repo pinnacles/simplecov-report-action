@@ -1,11 +1,13 @@
 module.exports = {
   clearMocks: true,
   moduleFileExtensions: ['js', 'ts'],
-  testEnvironment: 'node',
   testMatch: ['**/*.test.ts'],
-  testRunner: 'jest-circus/runner',
   transform: {
-    '^.+\\.ts$': 'ts-jest'
+    "\\.jsx?$": "babel-jest",
+    "\\.tsx?$": "ts-jest"
   },
+  transformIgnorePatterns: [
+    "/node_modules/(?!markdown-table).+\\.js",
+  ],
   verbose: true
 }
