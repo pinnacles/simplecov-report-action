@@ -15033,11 +15033,12 @@ const coverageDiffText = (coverage_diff) => {
 function calculateToJson(headBranchToJson, currentToJson) {
     const headBranchToGroupJson = headBranchToJson.groups;
     const currentToGroupJson = currentToJson.groups;
-    const covered_percent = currentToJson.covered_percent;
-    const coverage_diff = currentToJson.covered_percent - headBranchToJson.covered_percent;
+    const current_covered_percent = orgRound(currentToJson.covered_percent, 10);
+    const head_branch_covered_percent = orgRound(headBranchToJson.covered_percent, 10);
+    const coverage_diff = current_covered_percent - head_branch_covered_percent;
     const status = coverage_diff < 0 ? ':x:' : ':white_check_mark:';
     const json = {
-        covered_percent: `${orgRound(covered_percent, 10)}%`,
+        covered_percent: `${current_covered_percent}%`,
         coverage_diff: coverageDiffText(coverage_diff),
         status,
         groups: {}
@@ -15051,19 +15052,21 @@ function calculateToJson(headBranchToJson, currentToJson) {
             coverage_diff: '',
             status: ''
         };
+        const covered_percent = orgRound(coverage.covered_percent, 10);
+        const head_coverage_percent = orgRound(headBranchCoverage.covered_percent, 10);
         if (!headBranchCoverage) {
-            json.groups[key].covered_percent = `${orgRound(coverage.covered_percent, 10)}%`;
+            json.groups[key].covered_percent = `${covered_percent}%`;
             json.groups[key].coverage_diff = '0';
             json.groups[key].status = ':white_check_mark:';
             continue;
         }
-        const coveredDiff = orgRound(coverage.covered_percent - headBranchCoverage.covered_percent, 10);
-        json.groups[key].covered_percent = `${orgRound(coverage.covered_percent, 10)}%`;
-        if (headBranchCoverage.covered_percent === coverage.covered_percent) {
+        const coveredDiff = orgRound(covered_percent - head_coverage_percent, 10);
+        json.groups[key].covered_percent = `${covered_percent}%`;
+        if (head_coverage_percent === covered_percent) {
             json.groups[key].coverage_diff = '0';
             json.groups[key].status = ':white_check_mark:';
         }
-        else if (headBranchCoverage.covered_percent < coverage.covered_percent) {
+        else if (head_coverage_percent < covered_percent) {
             json.groups[key].coverage_diff = `+${coveredDiff}%`;
             json.groups[key].status = ':white_check_mark:';
         }

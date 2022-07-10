@@ -75,7 +75,6 @@ describe('test calculateToJson', () => {
         }
       }
     }
-    console.log(json)
     expect(json).toEqual(expectJson)
   })
 
@@ -146,7 +145,6 @@ describe('test calculateToJson', () => {
         }
       }
     }
-    console.log(json)
     expect(json).toEqual(expectJson)
   })
 })

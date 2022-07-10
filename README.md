@@ -14,7 +14,7 @@ The action works only with `pull_request` or `push` event.
 - `failedThreshold` - Failed threshold. (default: `90`)
 - `resultPath` - Path to last_run json file. (default: `coverage/coverage.json`)
 - `event_name` - pull_request or push. (default: `pull_request`)
-- `pr_number` - Set pr_number if event_name is selected.
+- `pr_number` - Set pr_number if event_name=push is selected.
 - `head_branch` - Compare head branch coverage results
 
 ## Example
