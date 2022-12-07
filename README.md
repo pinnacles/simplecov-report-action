@@ -6,15 +6,14 @@ A GitHub Action that report SimpleCov coverage.
 
 ## Usage:
 
-The action works only with `pull_request` or `push` event.
+The action works only with `pull_request` event.
 
 ### Inputs
 
 - `token` - The GITHUB_TOKEN secret.
 - `failedThreshold` - Failed threshold. (default: `90`)
-- `resultPath` - Path to last_run json file. (default: `coverage/coverage.json`)
-- `event_name` - pull_request or push. (default: `pull_request`)
-- `pr_number` - Set pr_number if event_name=push is selected.
+- `headRefCoveragePath` - Path to last_run json file. (default: `coverage/coverage.json`)
+- `baseRefCoveragePath` - Path to baseRef json file. (default: `baseref_coverage/coverage.json`)
 - `head_branch` - Compare head branch coverage results
 
 ## Example
