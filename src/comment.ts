@@ -1,3 +1,4 @@
+import * as core from '@actions/core'
 import {Octokit} from '@octokit/rest'
 import type {RestEndpointMethodTypes} from '@octokit/plugin-rest-endpoint-methods'
 import {encryptSha256} from './utils'
@@ -30,9 +31,11 @@ const findComment = async ({
   repo,
   issue_number
 }: GeneralOptions): Promise<{comment_id: number | undefined}> => {
+  core.debug(`findComment ${owner} ${repo} ${issue_number}`)
   const firstLine = encryptSha256(String(issue_number))
   const {data: existingComments} = await issues(token).listComments({owner, repo, issue_number})
   const comment = existingComments.find(c => c.body?.match(firstLine))
+  core.debug(`findComment succeed`)
 
   return {comment_id: comment ? comment.id : undefined}
 }
@@ -55,10 +58,14 @@ export default async function postComment({
   issue_number,
   body
 }: Readonly<PostCommentOptions>): Promise<void | CreateCommentResponse> {
+  core.debug(`postComment ${owner} ${repo} ${issue_number}`)
   const {comment_id} = await findComment({token, owner, repo, issue_number})
   if (comment_id) {
     await issues(token).updateComment({owner, repo, comment_id, body})
+    core.debug(`updateComment succeed`)
     return
   }
-  return createComment({token, owner, repo, issue_number, body})
+  const res = createComment({token, owner, repo, issue_number, body})
+  core.debug(`createComment succeed`)
+  return res
 }

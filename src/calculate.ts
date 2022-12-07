@@ -12,12 +12,15 @@ const coverageDiffText = (coverage_diff: number): string => {
   return `+${orgRound(coverage_diff, 10)}%`
 }
 
-export default function calculateToJson(headBranchToJson: CoverageReport, currentToJson: CoverageReport): Result {
-  const headBranchToGroupJson = headBranchToJson.groups
-  const currentToGroupJson = currentToJson.groups
-  const current_covered_percent = orgRound(currentToJson.covered_percent, 10)
-  const head_branch_covered_percent = orgRound(headBranchToJson.covered_percent, 10)
-  const coverage_diff = current_covered_percent - head_branch_covered_percent
+export default function calculateToJson(
+  headRefCoverageJson: CoverageReport,
+  baseRefCoverageJson: CoverageReport
+): Result {
+  const headBranchToGroupJson = baseRefCoverageJson.groups
+  const currentToGroupJson = headRefCoverageJson.groups
+  const current_covered_percent = orgRound(headRefCoverageJson.covered_percent, 10)
+  const base_branch_covered_percent = orgRound(baseRefCoverageJson.covered_percent, 10)
+  const coverage_diff = current_covered_percent - base_branch_covered_percent
   const status = coverage_diff < 0 ? ':x:' : ':white_check_mark:'
 
   const json: Result = {

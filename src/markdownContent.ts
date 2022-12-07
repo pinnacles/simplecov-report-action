@@ -4,15 +4,15 @@ import {encryptSha256} from './utils'
 
 export default function markdownContent(
   result: Result,
-  head_branch: string,
-  head_sha: string | undefined,
+  baseBranch: string,
+  headSha: string | undefined,
   arrowEmoji: string,
   pullRequestId: number
 ): string {
   const digestMessage = encryptSha256(String(pullRequestId))
   return `## Coverage Report
-merging this pull request into **${head_branch}** will increase coverage by **${result.coverage_diff}** ${arrowEmoji}
-${markdownTableContent(result, head_sha)}
+merging this pull request into **${baseBranch}** will increase coverage by **${result.coverage_diff}** ${arrowEmoji}
+${markdownTableContent(result, headSha)}
 
 <!-- ${digestMessage} -->
 `
