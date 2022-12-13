@@ -21,4 +21,3 @@ jobs:
           baseRefCoveragePath: dummy_coverage/baseBranch.json
           token: ${{ secrets.GITHUB_TOKEN }}
           baseBranch: master
-          headSha: xxxxxxxxx

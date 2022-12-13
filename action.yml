@@ -23,9 +23,6 @@ inputs:
   baseBranch:
     description: "Compare base branch coverage results"
     required: true
-  headSha:
-    description: "head sha"
-    required: true
 runs:
   using: 'node16'
   main: "dist/index.js"
