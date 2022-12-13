@@ -460,6 +460,29 @@ exports.prepareKeyValueMessage = prepareKeyValueMessage;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -470,6 +493,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(470));
 const rest_1 = __webpack_require__(889);
 const utils_1 = __webpack_require__(611);
 const issues = (auth) => {
@@ -477,9 +501,11 @@ const issues = (auth) => {
 };
 // Find text with SHA256-digested issue number in the comment
 const findComment = ({ token, owner, repo, issue_number }) => __awaiter(void 0, void 0, void 0, function* () {
+    core.debug(`findComment ${owner} ${repo} ${issue_number}`);
     const firstLine = (0, utils_1.encryptSha256)(String(issue_number));
     const { data: existingComments } = yield issues(token).listComments({ owner, repo, issue_number });
     const comment = existingComments.find(c => { var _a; return (_a = c.body) === null || _a === void 0 ? void 0 : _a.match(firstLine); });
+    core.debug(`findComment succeed`);
     return { comment_id: comment ? comment.id : undefined };
 });
 const createComment = ({ token, owner, repo, issue_number, body }) => __awaiter(void 0, void 0, void 0, function* () {
@@ -488,12 +514,16 @@ const createComment = ({ token, owner, repo, issue_number, body }) => __awaiter(
 });
 function postComment({ token, owner, repo, issue_number, body }) {
     return __awaiter(this, void 0, void 0, function* () {
+        core.debug(`postComment ${owner} ${repo} ${issue_number}`);
         const { comment_id } = yield findComment({ token, owner, repo, issue_number });
         if (comment_id) {
             yield issues(token).updateComment({ owner, repo, comment_id, body });
+            core.debug(`updateComment succeed`);
             return;
         }
-        return createComment({ token, owner, repo, issue_number, body });
+        const res = createComment({ token, owner, repo, issue_number, body });
+        core.debug(`createComment succeed`);
+        return res;
     });
 }
 exports.default = postComment;
@@ -1136,23 +1166,30 @@ const report_1 = __importDefault(__webpack_require__(684));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            core.debug(`${JSON.stringify(github)}`);
             if (!github.context.issue.number) {
                 core.warning('Cannot find the PR id.');
                 return;
             }
+            const pullRequestId = github.context.issue.number;
+            core.debug(`pullRequestId ${pullRequestId}`);
+            const headSha = core.getInput('headSha');
+            core.debug(`headSha ${headSha}`);
             const failedThreshold = Number.parseInt(core.getInput('failedThreshold'), 10);
             core.debug(`failedThreshold ${failedThreshold}`);
             const headRefCoveragePath = core.getInput('headRefCoveragePath');
             core.debug(`headRefCoveragePath ${headRefCoveragePath}`);
             const baseRefCoveragePath = core.getInput('baseRefCoveragePath');
             core.debug(`baseRefCoveragePath ${baseRefCoveragePath}`);
+            core.debug(`path.resolve headRefCoverageJson ${path_1.default.resolve('./', headRefCoveragePath)}`);
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-            const headRefCoverageJson = require(path_1.default.resolve(process.env.GITHUB_WORKSPACE, headRefCoveragePath))
-                .metrics;
+            const headRefCoverageJson = require(path_1.default.resolve('./', headRefCoveragePath)).metrics;
+            core.debug(`read headRefCoverageJson`);
+            core.debug(`path.resolve baseRefCoverageJson ${path_1.default.resolve('./', baseRefCoveragePath)}`);
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-            const baseRefCoverageJson = require(path_1.default.resolve(process.env.GITHUB_WORKSPACE, baseRefCoveragePath))
-                .metrics;
-            yield (0, report_1.default)(headRefCoverageJson, baseRefCoverageJson);
+            const baseRefCoverageJson = require(path_1.default.resolve('./', baseRefCoveragePath)).metrics;
+            core.debug(`read baseRefCoverageJson`);
+            yield (0, report_1.default)(pullRequestId, headSha, headRefCoverageJson, baseRefCoverageJson);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -6701,13 +6738,8 @@ const makeArrowEmoji = (coverage_diff) => {
         return ':arrow_down:';
     return ':arrow_up:';
 };
-function report(headRefCoverageJson, baseRefCoverageJson) {
+function report(pullRequestId, headSha, headRefCoverageJson, baseRefCoverageJson) {
     return __awaiter(this, void 0, void 0, function* () {
-        const pullRequestId = github.context.issue.number;
-        if (!pullRequestId) {
-            core.warning('Cannot find the PR id.');
-            return;
-        }
         const arrowEmoji = makeArrowEmoji(headRefCoverageJson.covered_percent - baseRefCoverageJson.covered_percent);
         const json = (0, calculate_1.default)(headRefCoverageJson, baseRefCoverageJson);
         yield (0, comment_1.default)({
@@ -6715,7 +6747,7 @@ function report(headRefCoverageJson, baseRefCoverageJson) {
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             issue_number: pullRequestId,
-            body: (0, markdownContent_1.default)(json, core.getInput('base_branch'), github.context.sha, arrowEmoji, pullRequestId)
+            body: (0, markdownContent_1.default)(json, core.getInput('baseBranch'), headSha, arrowEmoji, pullRequestId)
         });
     });
 }
@@ -7115,11 +7147,11 @@ module.exports = require("zlib");
 Object.defineProperty(exports, "__esModule", { value: true });
 const markdown_table_1 = __webpack_require__(366);
 const utils_1 = __webpack_require__(611);
-function markdownContent(result, base_branch, head_sha, arrowEmoji, pullRequestId) {
+function markdownContent(result, baseBranch, headSha, arrowEmoji, pullRequestId) {
     const digestMessage = (0, utils_1.encryptSha256)(String(pullRequestId));
     return `## Coverage Report
-merging this pull request into **${base_branch}** will increase coverage by **${result.coverage_diff}** ${arrowEmoji}
-${markdownTableContent(result, head_sha)}
+merging this pull request into **${baseBranch}** will increase coverage by **${result.coverage_diff}** ${arrowEmoji}
+${markdownTableContent(result, headSha)}
 
 <!-- ${digestMessage} -->
 `;

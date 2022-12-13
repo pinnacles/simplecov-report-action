@@ -6,6 +6,7 @@ import {CoverageReport} from './type'
 
 async function run(): Promise<void> {
   try {
+    core.debug(`${JSON.stringify(github)}`)
     if (!github.context.issue.number) {
       core.warning('Cannot find the PR id.')
       return
@@ -25,16 +26,14 @@ async function run(): Promise<void> {
     const baseRefCoveragePath: string = core.getInput('baseRefCoveragePath')
     core.debug(`baseRefCoveragePath ${baseRefCoveragePath}`)
 
-    core.debug(`path.resolve headRefCoverageJson ${path.resolve("./", headRefCoveragePath)}`)
+    core.debug(`path.resolve headRefCoverageJson ${path.resolve('./', headRefCoveragePath)}`)
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-    const headRefCoverageJson = require(path.resolve("./", headRefCoveragePath))
-      .metrics as CoverageReport
+    const headRefCoverageJson = require(path.resolve('./', headRefCoveragePath)).metrics as CoverageReport
     core.debug(`read headRefCoverageJson`)
 
-    core.debug(`path.resolve baseRefCoverageJson ${path.resolve("./", baseRefCoveragePath)}`)
+    core.debug(`path.resolve baseRefCoverageJson ${path.resolve('./', baseRefCoveragePath)}`)
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-    const baseRefCoverageJson = require(path.resolve("./", baseRefCoveragePath))
-      .metrics as CoverageReport
+    const baseRefCoverageJson = require(path.resolve('./', baseRefCoveragePath)).metrics as CoverageReport
     core.debug(`read baseRefCoverageJson`)
 
     await report(pullRequestId, headSha, headRefCoverageJson, baseRefCoverageJson)
