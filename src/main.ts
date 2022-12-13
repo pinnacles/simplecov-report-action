@@ -14,9 +14,6 @@ async function run(): Promise<void> {
     const pullRequestId = github.context.issue.number
     core.debug(`pullRequestId ${pullRequestId}`)
 
-    const headSha: string = core.getInput('headSha')
-    core.debug(`headSha ${headSha}`)
-
     const failedThreshold: number = Number.parseInt(core.getInput('failedThreshold'), 10)
     core.debug(`failedThreshold ${failedThreshold}`)
 
@@ -36,7 +33,7 @@ async function run(): Promise<void> {
     const baseRefCoverageJson = require(path.resolve('./', baseRefCoveragePath)).metrics as CoverageReport
     core.debug(`read baseRefCoverageJson`)
 
-    await report(pullRequestId, headSha, headRefCoverageJson, baseRefCoverageJson)
+    await report(pullRequestId, headRefCoverageJson, baseRefCoverageJson)
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)

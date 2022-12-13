@@ -13,7 +13,6 @@ const makeArrowEmoji = (coverage_diff: number): string => {
 
 export default async function report(
   pullRequestId: number,
-  headSha: string,
   headRefCoverageJson: CoverageReport,
   baseRefCoverageJson: CoverageReport
 ): Promise<void> {
@@ -24,6 +23,6 @@ export default async function report(
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     issue_number: pullRequestId,
-    body: markdownContent(json, core.getInput('baseBranch'), headSha, arrowEmoji, pullRequestId)
+    body: markdownContent(json, core.getInput('baseBranch'), github.context.sha, arrowEmoji, pullRequestId)
   })
 }

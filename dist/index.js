@@ -1173,8 +1173,6 @@ function run() {
             }
             const pullRequestId = github.context.issue.number;
             core.debug(`pullRequestId ${pullRequestId}`);
-            const headSha = core.getInput('headSha');
-            core.debug(`headSha ${headSha}`);
             const failedThreshold = Number.parseInt(core.getInput('failedThreshold'), 10);
             core.debug(`failedThreshold ${failedThreshold}`);
             const headRefCoveragePath = core.getInput('headRefCoveragePath');
@@ -1189,7 +1187,7 @@ function run() {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
             const baseRefCoverageJson = require(path_1.default.resolve('./', baseRefCoveragePath)).metrics;
             core.debug(`read baseRefCoverageJson`);
-            yield (0, report_1.default)(pullRequestId, headSha, headRefCoverageJson, baseRefCoverageJson);
+            yield (0, report_1.default)(pullRequestId, headRefCoverageJson, baseRefCoverageJson);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -6738,7 +6736,7 @@ const makeArrowEmoji = (coverage_diff) => {
         return ':arrow_down:';
     return ':arrow_up:';
 };
-function report(pullRequestId, headSha, headRefCoverageJson, baseRefCoverageJson) {
+function report(pullRequestId, headRefCoverageJson, baseRefCoverageJson) {
     return __awaiter(this, void 0, void 0, function* () {
         const arrowEmoji = makeArrowEmoji(headRefCoverageJson.covered_percent - baseRefCoverageJson.covered_percent);
         const json = (0, calculate_1.default)(headRefCoverageJson, baseRefCoverageJson);
@@ -6747,7 +6745,7 @@ function report(pullRequestId, headSha, headRefCoverageJson, baseRefCoverageJson
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             issue_number: pullRequestId,
-            body: (0, markdownContent_1.default)(json, core.getInput('baseBranch'), headSha, arrowEmoji, pullRequestId)
+            body: (0, markdownContent_1.default)(json, core.getInput('baseBranch'), github.context.sha, arrowEmoji, pullRequestId)
         });
     });
 }
