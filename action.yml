@@ -9,22 +9,22 @@ inputs:
     description: Failed threshold
     default: "90"
     required: false
-  resultPath:
+  headRefCoveragePath:
     description: "json path"
     default: "coverage/coverage.json"
+    required: false
+  baseRefCoveragePath:
+    description: "json path"
+    default: "baseref_coverage/coverage.json"
     required: false
   token:
     description: "Github token"
     required: true
-  event_name:
-    description: "pull_request or push"
-    default: "pull_request"
+  baseBranch:
+    description: "Compare base branch coverage results"
     required: true
-  pr_number:
-    description: "Set pr_number if event_name is selected."
-    required: false
-  head_branch:
-    description: "Compare head branch coverage results"
+  headSha:
+    description: "head sha"
     required: true
 runs:
   using: 'node16'

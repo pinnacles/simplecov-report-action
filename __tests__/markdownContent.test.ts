@@ -5,11 +5,11 @@ import path from 'path'
 import calculateToJson from '../src/calculate'
 
 test('test markdownContent', () => {
-  const headBranchToJson = require(path.resolve('dummy_coverage/headBranch.json')).metrics as CoverageReport
+  const baseRefCoverageJson = require(path.resolve('dummy_coverage/baseBranch.json')).metrics as CoverageReport
   const currentToJson = require(path.resolve('dummy_coverage/increaseCoverage.json')).metrics as CoverageReport
-  const json = calculateToJson(headBranchToJson, currentToJson)
+  const json = calculateToJson(currentToJson, baseRefCoverageJson)
 
-  const head_branch = 'main'
+  const base_branch = 'main'
   const head_sha = 'xxx'
   const arrowEmoji = ':arrow_up:'
   const pullRequestId = 1111
@@ -35,6 +35,6 @@ merging this pull request into **main** will increase coverage by **+20%** :arro
 `
 
   expect(result).toEqual(
-    expect.stringContaining(markdownContent(json, head_branch, head_sha, arrowEmoji, pullRequestId))
+    expect.stringContaining(markdownContent(json, base_branch, head_sha, arrowEmoji, pullRequestId))
   )
 })

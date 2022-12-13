@@ -6,30 +6,37 @@ import {CoverageReport} from './type'
 
 async function run(): Promise<void> {
   try {
-    if (core.getInput('event_name') !== 'pull_request' && core.getInput('event_name') !== 'push') {
-      core.warning('event_name is not allowed except pull_request or push')
-      return
-    }
-
-    if (core.getInput('event_name') === 'pull_request' && !github.context.issue.number) {
+    core.debug(`${JSON.stringify(github)}`)
+    if (!github.context.issue.number) {
       core.warning('Cannot find the PR id.')
       return
     }
+    const pullRequestId = github.context.issue.number
+    core.debug(`pullRequestId ${pullRequestId}`)
 
-    if (core.getInput('event_name') === 'push' && !core.getInput('pr_number')) {
-      core.warning('Cannot find the PR id.')
-      return
-    }
+    const headSha: string = core.getInput('headSha')
+    core.debug(`headSha ${headSha}`)
 
     const failedThreshold: number = Number.parseInt(core.getInput('failedThreshold'), 10)
     core.debug(`failedThreshold ${failedThreshold}`)
 
-    const resultPath: string = core.getInput('resultPath')
-    core.debug(`resultPath ${resultPath}`)
+    const headRefCoveragePath: string = core.getInput('headRefCoveragePath')
+    core.debug(`headRefCoveragePath ${headRefCoveragePath}`)
 
+    const baseRefCoveragePath: string = core.getInput('baseRefCoveragePath')
+    core.debug(`baseRefCoveragePath ${baseRefCoveragePath}`)
+
+    core.debug(`path.resolve headRefCoverageJson ${path.resolve('./', headRefCoveragePath)}`)
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-    const json = require(path.resolve(process.env.GITHUB_WORKSPACE!, resultPath)).metrics as CoverageReport
-    await report(json)
+    const headRefCoverageJson = require(path.resolve('./', headRefCoveragePath)).metrics as CoverageReport
+    core.debug(`read headRefCoverageJson`)
+
+    core.debug(`path.resolve baseRefCoverageJson ${path.resolve('./', baseRefCoveragePath)}`)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    const baseRefCoverageJson = require(path.resolve('./', baseRefCoveragePath)).metrics as CoverageReport
+    core.debug(`read baseRefCoverageJson`)
+
+    await report(pullRequestId, headSha, headRefCoverageJson, baseRefCoverageJson)
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)

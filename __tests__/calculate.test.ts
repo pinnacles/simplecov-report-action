@@ -5,9 +5,9 @@ import calculateToJson from '../src/calculate'
 
 describe('test calculateToJson', () => {
   test('+20 % increase', () => {
-    const headBranchToJson = require(path.resolve('dummy_coverage/headBranch.json')).metrics as CoverageReport
-    const currentToJson = require(path.resolve('dummy_coverage/increaseCoverage.json')).metrics as CoverageReport
-    const json = calculateToJson(headBranchToJson, currentToJson)
+    const baseRefCoverageJson = require(path.resolve('dummy_coverage/baseBranch.json')).metrics as CoverageReport
+    const headRefCoverageJson = require(path.resolve('dummy_coverage/increaseCoverage.json')).metrics as CoverageReport
+    const json = calculateToJson(headRefCoverageJson, baseRefCoverageJson)
     const expectJson = {
       covered_percent: '80.4%',
       coverage_diff: '+20%',
@@ -79,9 +79,9 @@ describe('test calculateToJson', () => {
   })
 
   test('-10 % decrease', () => {
-    const headBranchToJson = require(path.resolve('dummy_coverage/headBranch.json')).metrics as CoverageReport
-    const currentToJson = require(path.resolve('dummy_coverage/decreaseCoverage.json')).metrics as CoverageReport
-    const json = calculateToJson(headBranchToJson, currentToJson)
+    const baseRefCoverageJson = require(path.resolve('dummy_coverage/baseBranch.json')).metrics as CoverageReport
+    const headRefCoverageJson = require(path.resolve('dummy_coverage/decreaseCoverage.json')).metrics as CoverageReport
+    const json = calculateToJson(headRefCoverageJson, baseRefCoverageJson)
     const expectJson = {
       covered_percent: '50.4%',
       coverage_diff: '-10%',
