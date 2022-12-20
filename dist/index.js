@@ -5424,42 +5424,42 @@ const coverageDiffText = (coverage_diff) => {
     return `+${orgRound(coverage_diff, 10)}%`;
 };
 function calculateToJson(headRefCoverageJson, baseRefCoverageJson) {
-    const headBranchToGroupJson = baseRefCoverageJson.groups;
-    const currentToGroupJson = headRefCoverageJson.groups;
-    const current_covered_percent = orgRound(headRefCoverageJson.covered_percent, 10);
-    const base_branch_covered_percent = orgRound(baseRefCoverageJson.covered_percent, 10);
-    const coverage_diff = current_covered_percent - base_branch_covered_percent;
-    const status = coverage_diff < 0 ? ':x:' : ':white_check_mark:';
+    const baseBranchToGroupJson = baseRefCoverageJson.groups;
+    const headBranchToGroupJson = headRefCoverageJson.groups;
+    const baseBranchCoveredPercent = orgRound(baseRefCoverageJson.covered_percent, 10);
+    const headBranchCoveredPercent = orgRound(headRefCoverageJson.covered_percent, 10);
+    const coverageDiff = headBranchCoveredPercent - baseBranchCoveredPercent;
+    const status = coverageDiff < 0 ? ':x:' : ':white_check_mark:';
     const json = {
-        covered_percent: `${current_covered_percent}%`,
-        coverage_diff: coverageDiffText(coverage_diff),
+        covered_percent: `${headBranchCoveredPercent}%`,
+        coverage_diff: coverageDiffText(coverageDiff),
         status,
         groups: {}
     };
-    const keys = Object.keys(currentToGroupJson);
+    const keys = Object.keys(headBranchToGroupJson);
     for (const key of keys) {
         const headBranchCoverage = headBranchToGroupJson[key];
-        const coverage = currentToGroupJson[key];
         json.groups[key] = {
             covered_percent: '',
             coverage_diff: '',
             status: ''
         };
-        const covered_percent = orgRound(coverage.covered_percent, 10);
-        const head_coverage_percent = orgRound(headBranchCoverage.covered_percent, 10);
-        if (!headBranchCoverage) {
-            json.groups[key].covered_percent = `${covered_percent}%`;
+        const headCoveragePercent = orgRound(headBranchCoverage.covered_percent, 10);
+        const baseBranchCoverage = baseBranchToGroupJson[key];
+        if (!baseBranchCoverage) {
+            json.groups[key].covered_percent = `${headCoveragePercent}%`;
             json.groups[key].coverage_diff = '0';
             json.groups[key].status = ':white_check_mark:';
             continue;
         }
-        const coveredDiff = orgRound(covered_percent - head_coverage_percent, 10);
-        json.groups[key].covered_percent = `${covered_percent}%`;
-        if (head_coverage_percent === covered_percent) {
+        const baseCoveragePercent = orgRound(baseBranchCoverage.covered_percent, 10);
+        const coveredDiff = orgRound(headCoveragePercent - baseCoveragePercent, 10);
+        json.groups[key].covered_percent = `${headCoveragePercent}%`;
+        if (baseCoveragePercent === headCoveragePercent) {
             json.groups[key].coverage_diff = '0';
             json.groups[key].status = ':white_check_mark:';
         }
-        else if (head_coverage_percent < covered_percent) {
+        else if (baseCoveragePercent < headCoveragePercent) {
             json.groups[key].coverage_diff = `+${coveredDiff}%`;
             json.groups[key].status = ':white_check_mark:';
         }
