@@ -9,6 +9,7 @@ type Groups = {
 export type Result = {
   covered_percent: string
   coverage_diff: string
+  coverage_diff_as_number: number
   status: string
   groups: Groups
 }
