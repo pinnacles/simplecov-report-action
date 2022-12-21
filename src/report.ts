@@ -18,11 +18,14 @@ export default async function report(
 ): Promise<void> {
   const arrowEmoji = makeArrowEmoji(headRefCoverageJson.covered_percent - baseRefCoverageJson.covered_percent)
   const json = calculateToJson(headRefCoverageJson, baseRefCoverageJson)
-  await postComment({
-    token: core.getInput('token', {required: true}),
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    issue_number: pullRequestId,
-    body: markdownContent(json, core.getInput('baseBranch'), github.context.sha, arrowEmoji, pullRequestId)
-  })
+  if (json.coverage_diff_as_number < 0) {
+    await postComment({
+      token: core.getInput('token', {required: true}),
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      issue_number: pullRequestId,
+      body: markdownContent(json, core.getInput('baseBranch'), github.context.sha, arrowEmoji, pullRequestId)
+    })
+    throw 'detect decreasing test coverage'
+  }
 }

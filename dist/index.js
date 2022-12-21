@@ -5433,6 +5433,7 @@ function calculateToJson(headRefCoverageJson, baseRefCoverageJson) {
     const json = {
         covered_percent: `${headBranchCoveredPercent}%`,
         coverage_diff: coverageDiffText(coverageDiff),
+        coverage_diff_as_number: coverageDiff,
         status,
         groups: {}
     };
@@ -6740,13 +6741,16 @@ function report(pullRequestId, headRefCoverageJson, baseRefCoverageJson) {
     return __awaiter(this, void 0, void 0, function* () {
         const arrowEmoji = makeArrowEmoji(headRefCoverageJson.covered_percent - baseRefCoverageJson.covered_percent);
         const json = (0, calculate_1.default)(headRefCoverageJson, baseRefCoverageJson);
-        yield (0, comment_1.default)({
-            token: core.getInput('token', { required: true }),
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
-            issue_number: pullRequestId,
-            body: (0, markdownContent_1.default)(json, core.getInput('baseBranch'), github.context.sha, arrowEmoji, pullRequestId)
-        });
+        if (json.coverage_diff_as_number < 0) {
+            yield (0, comment_1.default)({
+                token: core.getInput('token', { required: true }),
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                issue_number: pullRequestId,
+                body: (0, markdownContent_1.default)(json, core.getInput('baseBranch'), github.context.sha, arrowEmoji, pullRequestId)
+            });
+            throw 'detect decreasing test coverage';
+        }
     });
 }
 exports.default = report;
