@@ -6750,7 +6750,7 @@ function report(pullRequestId, headRefCoverageJson, baseRefCoverageJson) {
                 issue_number: pullRequestId,
                 body: (0, markdownContent_1.default)(json, core.getInput('baseBranch'), github.context.sha, arrowEmoji, pullRequestId)
             });
-            throw 'detect decreasing test coverage';
+            throw new Error('detect decreasing test coverage');
         }
     });
 }
