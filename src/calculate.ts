@@ -59,7 +59,9 @@ export default function calculateToJson(
     } else {
       json.groups[key].coverage_diff = `${coveredDiff}%`
       json.groups[key].status = ':x:'
-      json.degraded = true
+      if (headCoveragePercent - baseCoveragePercent < -0.5) {
+        json.degraded = true
+      }
     }
   }
   return json

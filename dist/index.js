@@ -1173,8 +1173,6 @@ function run() {
             }
             const pullRequestId = github.context.issue.number;
             core.debug(`pullRequestId ${pullRequestId}`);
-            const failedThreshold = Number.parseInt(core.getInput('failedThreshold'), 10);
-            core.debug(`failedThreshold ${failedThreshold}`);
             const headRefCoveragePath = core.getInput('headRefCoveragePath');
             core.debug(`headRefCoveragePath ${headRefCoveragePath}`);
             const baseRefCoveragePath = core.getInput('baseRefCoveragePath');
@@ -5467,7 +5465,9 @@ function calculateToJson(headRefCoverageJson, baseRefCoverageJson) {
         else {
             json.groups[key].coverage_diff = `${coveredDiff}%`;
             json.groups[key].status = ':x:';
-            json.degraded = true;
+            if (headCoveragePercent - baseCoveragePercent < -0.5) {
+                json.degraded = true;
+            }
         }
     }
     return json;
