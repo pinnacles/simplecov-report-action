@@ -11,7 +11,7 @@ describe('test calculateToJson', () => {
     const expectJson = {
       covered_percent: '80.4%',
       coverage_diff: '+20%',
-      coverage_diff_as_number: 20.000000000000007,
+      degraded: false,
       status: ':white_check_mark:',
       groups: {
         Controllers: {
@@ -86,7 +86,7 @@ describe('test calculateToJson', () => {
     const expectJson = {
       covered_percent: '50.4%',
       coverage_diff: '-10%',
-      coverage_diff_as_number: -10,
+      degraded: true,
       status: ':x:',
       groups: {
         Controllers: {covered_percent: '42.6%', coverage_diff: '-10%', status: ':x:'},
