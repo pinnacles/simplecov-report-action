@@ -26,7 +26,7 @@ export default function calculateToJson(
   const json: Result = {
     covered_percent: `${headBranchCoveredPercent}%`,
     coverage_diff: coverageDiffText(coverageDiff),
-    coverage_diff_as_number: coverageDiff,
+    degraded: false,
     status,
     groups: {}
   }
@@ -59,6 +59,7 @@ export default function calculateToJson(
     } else {
       json.groups[key].coverage_diff = `${coveredDiff}%`
       json.groups[key].status = ':x:'
+      json.degraded = true
     }
   }
   return json

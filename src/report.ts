@@ -18,7 +18,7 @@ export default async function report(
 ): Promise<void> {
   const arrowEmoji = makeArrowEmoji(headRefCoverageJson.covered_percent - baseRefCoverageJson.covered_percent)
   const json = calculateToJson(headRefCoverageJson, baseRefCoverageJson)
-  if (json.coverage_diff_as_number < 0) {
+  if (json.degraded) {
     await postComment({
       token: core.getInput('token', {required: true}),
       owner: github.context.repo.owner,

@@ -5433,7 +5433,7 @@ function calculateToJson(headRefCoverageJson, baseRefCoverageJson) {
     const json = {
         covered_percent: `${headBranchCoveredPercent}%`,
         coverage_diff: coverageDiffText(coverageDiff),
-        coverage_diff_as_number: coverageDiff,
+        degraded: false,
         status,
         groups: {}
     };
@@ -5467,6 +5467,7 @@ function calculateToJson(headRefCoverageJson, baseRefCoverageJson) {
         else {
             json.groups[key].coverage_diff = `${coveredDiff}%`;
             json.groups[key].status = ':x:';
+            json.degraded = true;
         }
     }
     return json;
@@ -6741,7 +6742,7 @@ function report(pullRequestId, headRefCoverageJson, baseRefCoverageJson) {
     return __awaiter(this, void 0, void 0, function* () {
         const arrowEmoji = makeArrowEmoji(headRefCoverageJson.covered_percent - baseRefCoverageJson.covered_percent);
         const json = (0, calculate_1.default)(headRefCoverageJson, baseRefCoverageJson);
-        if (json.coverage_diff_as_number < 0) {
+        if (json.degraded) {
             yield (0, comment_1.default)({
                 token: core.getInput('token', { required: true }),
                 owner: github.context.repo.owner,
