@@ -26,6 +26,6 @@ export default async function report(
       issue_number: pullRequestId,
       body: markdownContent(json, core.getInput('baseBranch'), github.context.sha, arrowEmoji, pullRequestId)
     })
-    throw 'detect decreasing test coverage'
+    throw new Error('detect decreasing test coverage')
   }
 }
