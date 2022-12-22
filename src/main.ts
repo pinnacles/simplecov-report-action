@@ -14,9 +14,6 @@ async function run(): Promise<void> {
     const pullRequestId = github.context.issue.number
     core.debug(`pullRequestId ${pullRequestId}`)
 
-    const failedThreshold: number = Number.parseInt(core.getInput('failedThreshold'), 10)
-    core.debug(`failedThreshold ${failedThreshold}`)
-
     const headRefCoveragePath: string = core.getInput('headRefCoveragePath')
     core.debug(`headRefCoveragePath ${headRefCoveragePath}`)
 
