@@ -5,18 +5,11 @@ import markdownContent from './markdownContent'
 import {CoverageReport} from './type'
 import calculateToJson from './calculate'
 
-const makeArrowEmoji = (coverage_diff: number): string => {
-  if (coverage_diff === 0) return ''
-  if (coverage_diff < 0) return ':arrow_down:'
-  return ':arrow_up:'
-}
-
 export default async function report(
   pullRequestId: number,
   headRefCoverageJson: CoverageReport,
   baseRefCoverageJson: CoverageReport
 ): Promise<void> {
-  const arrowEmoji = makeArrowEmoji(headRefCoverageJson.covered_percent - baseRefCoverageJson.covered_percent)
   const json = calculateToJson(headRefCoverageJson, baseRefCoverageJson)
   if (json.degraded) {
     await postComment({
@@ -24,7 +17,7 @@ export default async function report(
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
       issue_number: pullRequestId,
-      body: markdownContent(json, core.getInput('baseBranch'), github.context.sha, arrowEmoji, pullRequestId)
+      body: markdownContent(json, github.context.sha, pullRequestId)
     })
     throw new Error('detect decreasing test coverage')
   }

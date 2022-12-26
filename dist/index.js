@@ -5414,23 +5414,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const orgRound = (value, base) => {
     return Math.round(value * base) / base;
 };
-const coverageDiffText = (coverage_diff) => {
-    if (coverage_diff === 0)
-        return '0';
-    if (coverage_diff < 0)
-        return `${orgRound(coverage_diff, 10)}%`;
-    return `+${orgRound(coverage_diff, 10)}%`;
-};
 function calculateToJson(headRefCoverageJson, baseRefCoverageJson) {
     const baseBranchToGroupJson = baseRefCoverageJson.groups;
     const headBranchToGroupJson = headRefCoverageJson.groups;
     const baseBranchCoveredPercent = orgRound(baseRefCoverageJson.covered_percent, 10);
     const headBranchCoveredPercent = orgRound(headRefCoverageJson.covered_percent, 10);
-    const coverageDiff = headBranchCoveredPercent - baseBranchCoveredPercent;
+    const coverageDiff = orgRound(headBranchCoveredPercent - baseBranchCoveredPercent, 10);
     const status = coverageDiff < 0 ? ':x:' : ':white_check_mark:';
     const json = {
         covered_percent: `${headBranchCoveredPercent}%`,
-        coverage_diff: coverageDiffText(coverageDiff),
+        coverage_diff: coverageDiff,
         degraded: false,
         status,
         groups: {}
@@ -5465,7 +5458,7 @@ function calculateToJson(headRefCoverageJson, baseRefCoverageJson) {
         else {
             json.groups[key].coverage_diff = `${coveredDiff}%`;
             json.groups[key].status = ':x:';
-            if (headCoveragePercent - baseCoveragePercent < -0.5) {
+            if (headCoveragePercent - baseCoveragePercent < -0.2) {
                 json.degraded = true;
             }
         }
@@ -6731,16 +6724,8 @@ const github = __importStar(__webpack_require__(469));
 const comment_1 = __importDefault(__webpack_require__(105));
 const markdownContent_1 = __importDefault(__webpack_require__(765));
 const calculate_1 = __importDefault(__webpack_require__(459));
-const makeArrowEmoji = (coverage_diff) => {
-    if (coverage_diff === 0)
-        return '';
-    if (coverage_diff < 0)
-        return ':arrow_down:';
-    return ':arrow_up:';
-};
 function report(pullRequestId, headRefCoverageJson, baseRefCoverageJson) {
     return __awaiter(this, void 0, void 0, function* () {
-        const arrowEmoji = makeArrowEmoji(headRefCoverageJson.covered_percent - baseRefCoverageJson.covered_percent);
         const json = (0, calculate_1.default)(headRefCoverageJson, baseRefCoverageJson);
         if (json.degraded) {
             yield (0, comment_1.default)({
@@ -6748,7 +6733,7 @@ function report(pullRequestId, headRefCoverageJson, baseRefCoverageJson) {
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
                 issue_number: pullRequestId,
-                body: (0, markdownContent_1.default)(json, core.getInput('baseBranch'), github.context.sha, arrowEmoji, pullRequestId)
+                body: (0, markdownContent_1.default)(json, github.context.sha, pullRequestId)
             });
             throw new Error('detect decreasing test coverage');
         }
@@ -7150,10 +7135,17 @@ module.exports = require("zlib");
 Object.defineProperty(exports, "__esModule", { value: true });
 const markdown_table_1 = __webpack_require__(366);
 const utils_1 = __webpack_require__(611);
-function markdownContent(result, baseBranch, headSha, arrowEmoji, pullRequestId) {
+const coverageDiffText = (coverage_diff) => {
+    if (coverage_diff === 0)
+        return '0';
+    if (coverage_diff < 0)
+        return `${coverage_diff}%`;
+    return `+${coverage_diff}%`;
+};
+function markdownContent(result, headSha, pullRequestId) {
     const digestMessage = (0, utils_1.encryptSha256)(String(pullRequestId));
-    return `## Coverage Report
-merging this pull request into **${baseBranch}** will increase coverage by **${result.coverage_diff}** ${arrowEmoji}
+    return `## Detect Coverage Degradation
+カバレッジが ${result.coverage_diff}% 下がりました。テストコードを確認してください。
 ${markdownTableContent(result, headSha)}
 
 <!-- ${digestMessage} -->
@@ -7164,7 +7156,7 @@ function markdownTableContent(result, head_sha) {
     const headSha = head_sha === undefined ? 'Diff' : `Diff(${head_sha})`;
     const list = [
         ['Group Files', 'Covered', headSha, ''],
-        ['**Total**', `**${result.covered_percent}**`, `**${result.coverage_diff}**`, result.status]
+        ['**Total**', `**${result.covered_percent}**`, `**${coverageDiffText(result.coverage_diff)}**`, result.status]
     ];
     if (result.groups) {
         const groups = result.groups;

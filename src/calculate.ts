@@ -6,12 +6,6 @@ const orgRound = (value: number, base: number): number => {
   return Math.round(value * base) / base
 }
 
-const coverageDiffText = (coverage_diff: number): string => {
-  if (coverage_diff === 0) return '0'
-  if (coverage_diff < 0) return `${orgRound(coverage_diff, 10)}%`
-  return `+${orgRound(coverage_diff, 10)}%`
-}
-
 export default function calculateToJson(
   headRefCoverageJson: CoverageReport,
   baseRefCoverageJson: CoverageReport
@@ -20,12 +14,12 @@ export default function calculateToJson(
   const headBranchToGroupJson = headRefCoverageJson.groups
   const baseBranchCoveredPercent = orgRound(baseRefCoverageJson.covered_percent, 10)
   const headBranchCoveredPercent = orgRound(headRefCoverageJson.covered_percent, 10)
-  const coverageDiff = headBranchCoveredPercent - baseBranchCoveredPercent
+  const coverageDiff = orgRound(headBranchCoveredPercent - baseBranchCoveredPercent, 10)
   const status = coverageDiff < 0 ? ':x:' : ':white_check_mark:'
 
   const json: Result = {
     covered_percent: `${headBranchCoveredPercent}%`,
-    coverage_diff: coverageDiffText(coverageDiff),
+    coverage_diff: coverageDiff,
     degraded: false,
     status,
     groups: {}
@@ -59,7 +53,7 @@ export default function calculateToJson(
     } else {
       json.groups[key].coverage_diff = `${coveredDiff}%`
       json.groups[key].status = ':x:'
-      if (headCoveragePercent - baseCoveragePercent < -0.5) {
+      if (headCoveragePercent - baseCoveragePercent < -0.2) {
         json.degraded = true
       }
     }
