@@ -10,7 +10,7 @@ describe('test calculateToJson', () => {
     const json = calculateToJson(headRefCoverageJson, baseRefCoverageJson)
     const expectJson = {
       covered_percent: '80.4%',
-      coverage_diff: '+20%',
+      coverage_diff: 20,
       degraded: false,
       status: ':white_check_mark:',
       groups: {
@@ -85,7 +85,7 @@ describe('test calculateToJson', () => {
     const json = calculateToJson(headRefCoverageJson, baseRefCoverageJson)
     const expectJson = {
       covered_percent: '50.4%',
-      coverage_diff: '-10%',
+      coverage_diff: -10,
       degraded: true,
       status: ':x:',
       groups: {

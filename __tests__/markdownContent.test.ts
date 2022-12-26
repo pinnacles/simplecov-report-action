@@ -9,12 +9,10 @@ test('test markdownContent', () => {
   const currentToJson = require(path.resolve('dummy_coverage/increaseCoverage.json')).metrics as CoverageReport
   const json = calculateToJson(currentToJson, baseRefCoverageJson)
 
-  const base_branch = 'main'
   const head_sha = 'xxx'
-  const arrowEmoji = ':arrow_up:'
   const pullRequestId = 1111
-  const result = `## Coverage Report
-merging this pull request into **main** will increase coverage by **+20%** :arrow_up:
+  const result = `## Detect Coverage Degradation
+カバレッジが 20% 下がりました。テストコードを確認してください。
 | Group Files | Covered   | Diff(xxx) |                    |
 | ----------- | --------- | --------- | ------------------ |
 | **Total**   | **80.4%** | **+20%**  | :white_check_mark: |
@@ -34,7 +32,5 @@ merging this pull request into **main** will increase coverage by **+20%** :arro
 <!-- 0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c -->
 `
 
-  expect(result).toEqual(
-    expect.stringContaining(markdownContent(json, base_branch, head_sha, arrowEmoji, pullRequestId))
-  )
+  expect(result).toEqual(expect.stringContaining(markdownContent(json, head_sha, pullRequestId)))
 })

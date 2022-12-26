@@ -2,16 +2,16 @@ import {markdownTable} from 'markdown-table'
 import {Result} from './type'
 import {encryptSha256} from './utils'
 
-export default function markdownContent(
-  result: Result,
-  baseBranch: string,
-  headSha: string | undefined,
-  arrowEmoji: string,
-  pullRequestId: number
-): string {
+const coverageDiffText = (coverage_diff: number): string => {
+  if (coverage_diff === 0) return '0'
+  if (coverage_diff < 0) return `${coverage_diff}%`
+  return `+${coverage_diff}%`
+}
+
+export default function markdownContent(result: Result, headSha: string | undefined, pullRequestId: number): string {
   const digestMessage = encryptSha256(String(pullRequestId))
-  return `## Coverage Report
-merging this pull request into **${baseBranch}** will increase coverage by **${result.coverage_diff}** ${arrowEmoji}
+  return `## Detect Coverage Degradation
+カバレッジが ${result.coverage_diff}% 下がりました。テストコードを確認してください。
 ${markdownTableContent(result, headSha)}
 
 <!-- ${digestMessage} -->
@@ -23,7 +23,7 @@ function markdownTableContent(result: Result, head_sha: string | undefined): str
 
   const list = [
     ['Group Files', 'Covered', headSha, ''],
-    ['**Total**', `**${result.covered_percent}**`, `**${result.coverage_diff}**`, result.status]
+    ['**Total**', `**${result.covered_percent}**`, `**${coverageDiffText(result.coverage_diff)}**`, result.status]
   ]
   if (result.groups) {
     const groups = result.groups

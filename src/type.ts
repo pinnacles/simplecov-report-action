@@ -8,7 +8,7 @@ type Groups = {
 
 export type Result = {
   covered_percent: string
-  coverage_diff: string
+  coverage_diff: number
   degraded: boolean
   status: string
   groups: Groups
